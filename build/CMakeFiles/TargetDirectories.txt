@@ -1,0 +1,3 @@
+C:/Users/22315/Desktop/25springcpp/build/CMakeFiles/SnakeGameQt.dir
+C:/Users/22315/Desktop/25springcpp/build/CMakeFiles/edit_cache.dir
+C:/Users/22315/Desktop/25springcpp/build/CMakeFiles/rebuild_cache.dir
