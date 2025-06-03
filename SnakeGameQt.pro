@@ -1,4 +1,4 @@
-QT += widgets
+QT += widgets multimedia
 CONFIG += c++20
 TARGET = SnakeGameQt
 TEMPLATE = app

@@ -8,7 +8,7 @@
 class Food {
 public:
     Food();
-    void respawn(int width, int height, const std::deque<QPoint>& snakeBody);
+    void respawn(int width, int height, const std::deque<QPoint>& snakeBody, const QList<QPoint>& obstacles);
     QPoint getPosition() const;
 private:
     QPoint position;

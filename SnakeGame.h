@@ -4,6 +4,18 @@
 #include <QObject>
 #include "Snake.h"
 #include "Food.h"
+#include <QSoundEffect>
+
+enum GameState {
+    Menu,
+    Playing,
+    GameOver
+};
+
+enum MapType {
+    EmptyMap,
+    ObstacleMap
+};
 
 class SnakeGame : public QObject {
     Q_OBJECT
@@ -17,6 +29,24 @@ public:
     bool isGameOver() const;
     const Snake& getSnake() const;
     const Food& getFood() const;
+    GameState getGameState() const;
+    void setGameState(GameState state);
+    int getDifficulty() const;
+    void setDifficulty(int difficulty);
+    int getElapsedTime() const;
+    void setElapsedTime(int time);
+    void setHighScore(int score);
+    int getHighScore() const;
+    void setSelectedMap(MapType mapType);
+    const QList<QPoint>& getObstacles() const; // Add this line
+
+signals:
+    void stopGameTimer();
+    void startGameTimer();
+
+private:
+    void loadHighScore();
+    void saveHighScore();
 
 signals:
     void gameUpdated();
@@ -27,8 +57,19 @@ private:
     Food food;
     int score;
     bool gameOverFlag;
+    GameState gameState;
+    int difficulty;
+    int elapsedTime;
+    int highScore;
+    MapType selectedMap;
+    QList<QPoint> obstacles; // Add this line
+    bool waitingForFirstMove; // Add this line
     void checkCollisions();
     void spawnFood();
+
+private:
+    QSoundEffect* eatSound;
+    QSoundEffect* collisionSound;
 };
 
 #endif // SNAKEGAME_H
