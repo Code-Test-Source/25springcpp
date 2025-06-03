@@ -36,7 +36,19 @@ void GameRenderer::stopGameTimer() {
 }
 
 void GameRenderer::startGameTimer() {
-    gameTimer->start(120); // Start with default speed, difficulty will adjust it later
+    int interval = 100; // Default speed
+    switch (game->getDifficulty()) {
+        case 1: // Easy
+            interval = 150;
+            break;
+        case 2: // Medium
+            interval = 100;
+            break;
+        case 3: // Hard
+            interval = 50;
+            break;
+    }
+    gameTimer->start(interval);
 }
 
 void GameRenderer::renderMenu(QPainter& painter) {
