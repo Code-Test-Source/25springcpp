@@ -176,7 +176,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g -std=gnu++17"
+					"fragment" : "-g -std=gnu++17"
 				}
 			],
 			"defines" : 
@@ -276,7 +276,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g",
+				"fragment" : "-g",
 				"role" : "flags"
 			},
 			{
