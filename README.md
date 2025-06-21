@@ -21,7 +21,8 @@ mingw32-make
 
 ## 打包过程
 进入release目录，执行以下命令进行打包：
-```windeployqt  SnakeGameQt.exe
+```
+windeployqt  SnakeGameQt.exe
 ```
 然后使用enigma virtual box将整个文件夹拖入打包，当然也可以选择性打包
 
