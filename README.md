@@ -19,6 +19,12 @@ mingw32-make
 ```
 编译成功后，将生成可执行文件，可以直接运行来启动项目程序。
 
+## 打包过程
+进入release目录，执行以下命令进行打包：
+```windeployqt  SnakeGameQt.exe
+```
+然后使用enigma virtual box将整个文件夹拖入打包，当然也可以选择性打包
+
 ## 注意事项
 - 确保本地环境已经安装MinGW及其它必要依赖。
 - 根据需要可修改Makefile中的配置以适配本地开发环境。
