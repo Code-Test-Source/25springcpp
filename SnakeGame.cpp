@@ -17,13 +17,6 @@ const int GRID_HEIGHT = 20;
 
 SnakeGame::SnakeGame(QObject *parent)
     : QObject(parent), score(0), gameOverFlag(false), gameState(Menu), difficulty(1), elapsedTime(0), highScore(0) {
-    // Initialize sound effects
-    eatSound = new QSoundEffect(this);
-    eatSound->setSource(QUrl(":/sounds/eat.wav"));
-    qDebug() << "Eat sound loaded:" << eatSound->isLoaded();
-    collisionSound = new QSoundEffect(this);
-    collisionSound->setSource(QUrl(":/sounds/collision.wav"));
-    qDebug() << "Collision sound loaded:" << collisionSound->isLoaded();
     loadHighScore();
     srand(time(0)); // Seed random number generator
     // Start a timer for elapsed time
@@ -224,10 +217,6 @@ void SnakeGame::checkCollisions() {
     }
     // Obstacle collision
     if (obstacles.contains(head)) {
-        if (collisionSound->isLoaded()) {
-            qDebug() << "Playing collision sound (obstacle)";
-            collisionSound->play();
-        }
         gameOverFlag = true;
         gameState = GameOver;
         if (score > highScore) {
@@ -242,10 +231,6 @@ void SnakeGame::checkCollisions() {
         snake.grow();
         score += 10;
         spawnFood();
-        if (eatSound->isLoaded()) {
-            qDebug() << "Playing eat sound";
-            eatSound->play();
-        }
     }
 }
 

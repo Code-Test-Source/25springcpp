@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>eat.wav</file>
-        <file>collision.wav</file>
-    </qresource>
-</RCC>

@@ -1,2 +1,0 @@
-Eat sound loaded: 0
-Collision sound loaded: 0
