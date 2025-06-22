@@ -2,33 +2,52 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include <QTimer>
+#include <QConicalGradient>
+#include <cmath>
 
-const int CELL_SIZE = 20;
+const int CELL_SIZE = 25; // 增大单元格尺寸
 const int GRID_WIDTH = 20;
 const int GRID_HEIGHT = 20;
+const int HEAD_EYE_SIZE = 4; // 蛇眼大小
 
 enum MenuState { MainMenu, DifficultyMenu, AppearanceMenu, MapMenu };
 MenuState currentMenuState = MainMenu;
 
 GameRenderer::GameRenderer(SnakeGame* game, QWidget* parent)
     : QWidget(parent), game(game) {
-    setFixedSize(GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE + 40);
+    setFixedSize(GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE + 50); // 增加高度
     setFocusPolicy(Qt::StrongFocus);
-    gameTimer = new QTimer(this); // Initialize the member variable
+    
+    // 设置背景色
+    QPalette pal = palette();
+    pal.setColor(QPalette::Window, QColor(30, 30, 40));
+    setAutoFillBackground(true);
+    setPalette(pal);
+    
+    gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, [this, game]() {
         if (game->getGameState() == Playing) {
             game->update();
         }
     });
+    
+    // 食物动画定时器
+    foodAnimationTimer = new QTimer(this);
+    connect(foodAnimationTimer, &QTimer::timeout, this, [this]() {
+        foodScale = 0.9 + 0.1 * std::sin(foodRotation);
+        foodRotation += 0.1;
+        update();
+    });
+    foodAnimationTimer->start(100);
+    
     connect(game, &SnakeGame::gameUpdated, this, QOverload<>::of(&QWidget::update));
     connect(game, &SnakeGame::gameOver, this, QOverload<>::of(&QWidget::update));
     connect(game, &SnakeGame::stopGameTimer, this, &GameRenderer::stopGameTimer);
     connect(game, &SnakeGame::startGameTimer, this, &GameRenderer::startGameTimer);
-    gameTimer->start(120); // Default speed, will adjust based on difficulty
-    snakeHeadColor = QColor(0, 180, 0);
-    snakeBodyColor = QColor(0, 120, 0);
-    selectedHeadShape = SquareHead; // Default shape
-    selectedBodyColor = GreenBody; // Default color
+    
+    gameTimer->start(120);
+    snakeHeadColor = QColor(0, 200, 0);
+    snakeBodyColor = QColor(0, 150, 0);
 }
 
 void GameRenderer::stopGameTimer() {
@@ -36,34 +55,38 @@ void GameRenderer::stopGameTimer() {
 }
 
 void GameRenderer::startGameTimer() {
-    int interval = 100; // Default speed
+    int interval = 100;
     switch (game->getDifficulty()) {
-        case 1: // Easy
-            interval = 150;
-            break;
-        case 2: // Medium
-            interval = 100;
-            break;
-        case 3: // Hard
-            interval = 50;
-            break;
+        case 1: interval = 150; break;
+        case 2: interval = 100; break;
+        case 3: interval = 50; break;
     }
     gameTimer->start(interval);
 }
 
 void GameRenderer::renderMenu(QPainter& painter) {
-    painter.fillRect(rect(), QColor(240, 240, 240));
-    painter.setPen(Qt::black);
-    painter.setFont(QFont("Arial", 20, QFont::Bold));
-
+    // 创建渐变背景
+    QLinearGradient gradient(0, 0, width(), height());
+    gradient.setColorAt(0, QColor(50, 50, 70));
+    gradient.setColorAt(1, QColor(20, 20, 40));
+    painter.fillRect(rect(), gradient);
+    
+    // 绘制标题
+    painter.setPen(QColor(220, 220, 255));
+    painter.setFont(QFont("Arial", 28, QFont::Bold));
+    painter.drawText(rect().adjusted(0, 20, 0, 0), Qt::AlignTop | Qt::AlignHCenter, "SNAKE GAME");
+    
+    // 绘制菜单选项
+    painter.setFont(QFont("Arial", 16));
+    painter.setPen(QColor(180, 255, 180));
+    
     QString menuText;
     QString headShapeString;
     QString bodyColorString;
-
+    
     switch (currentMenuState) {
         case MainMenu:
-            menuText = QString("Snake Game\nHigh Score: %1\n\n")
-                           .arg(game->getHighScore());
+            menuText = QString("High Score: %1\n\n").arg(game->getHighScore());
             menuText += "Start Game (Press S)\n\n";
             menuText += "Select Difficulty (Press D)\n";
             menuText += "Select Appearance (Press A)\n";
@@ -86,11 +109,11 @@ void GameRenderer::renderMenu(QPainter& painter) {
                 case HexagonHead: headShapeString = "Hexagon"; break;
             }
             menuText += QString("  Head Shape: %1 (Press H to cycle)\n").arg(headShapeString);
-
             switch (selectedBodyColor) {
                 case GreenBody: bodyColorString = "Green"; break;
                 case BlueBody: bodyColorString = "Blue"; break;
                 case YellowBody: bodyColorString = "Yellow"; break;
+                case RainbowBody: bodyColorString = "Rainbow"; break;
             }
             menuText += QString("  Body Color: %1 (Press C to cycle)\n\n").arg(bodyColorString);
             menuText += "Back to Main Menu (Press B)";
@@ -102,113 +125,333 @@ void GameRenderer::renderMenu(QPainter& painter) {
             menuText += "Back to Main Menu (Press B)";
             break;
     }
-
-    painter.drawText(rect(), Qt::AlignCenter, menuText);
+    
+    // 绘制菜单文本
+    painter.drawText(rect().adjusted(0, 80, 0, 0), Qt::AlignTop | Qt::AlignHCenter, menuText);
+    
+    // 在底部绘制预览蛇
+    painter.translate(width()/2, height() - 100);
+    painter.setRenderHint(QPainter::Antialiasing);
+    
+    // 绘制蛇身预览
+    for (int i = 0; i < 5; i++) {
+        QRect segmentRect(-i * 15, 0, 20, 20);
+        drawSnakeSegment(painter, segmentRect, i, 5);
+    }
+    
+    // 绘制蛇头预览
+    QRect headRect(15, 0, 20, 20);
+    drawSnakeHead(painter, headRect, QPoint(1, 0));
+    
+    // 绘制食物预览
+    QRect foodRect(60, 0, 20, 20);
+    drawFood(painter, foodRect);
+    
+    painter.resetTransform();
 }
 
 void GameRenderer::renderPlaying(QPainter& painter) {
-    // Draw background
-    painter.fillRect(rect(), QColor(240, 240, 240));
-    // Draw grid
-    painter.setPen(QColor(220, 220, 220));
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    
+    // 绘制渐变背景
+    QLinearGradient bgGradient(0, 0, width(), height());
+    bgGradient.setColorAt(0, QColor(40, 40, 60));
+    bgGradient.setColorAt(1, QColor(20, 20, 30));
+    painter.fillRect(rect(), bgGradient);
+    
+    // 绘制网格
+    painter.setPen(QPen(QColor(60, 60, 80, 100), 1));
     for (int i = 0; i <= GRID_WIDTH; ++i)
         painter.drawLine(i * CELL_SIZE, 0, i * CELL_SIZE, GRID_HEIGHT * CELL_SIZE);
     for (int i = 0; i <= GRID_HEIGHT; ++i)
         painter.drawLine(0, i * CELL_SIZE, GRID_WIDTH * CELL_SIZE, i * CELL_SIZE);
-    // Draw snake
+    
+    // 绘制蛇
     const auto& body = game->getSnake().getBody();
-    if (body.empty()) return; // Don't draw if snake is empty
-
-    // Set body color
-    QColor currentBodyColor;
-    switch (selectedBodyColor) {
-        case GreenBody: currentBodyColor = QColor(0, 120, 0); break;
-        case BlueBody: currentBodyColor = QColor(0, 0, 180); break;
-        case YellowBody: currentBodyColor = QColor(180, 180, 0); break;
-    }
-    painter.setBrush(currentBodyColor);
-    painter.setPen(Qt::NoPen);
-
-    // Draw body segments
+    if (body.empty()) return;
+    
+    // 绘制蛇身
     for (size_t i = 1; i < body.size(); ++i) {
-        QRect cell(body[i].x() * CELL_SIZE, body[i].y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        painter.drawRect(cell);
+        QRect segmentRect(body[i].x() * CELL_SIZE, body[i].y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        drawSnakeSegment(painter, segmentRect, i, body.size());
     }
-
-    // Draw obstacles
-    painter.setBrush(QColor(100, 100, 100)); // Obstacle color
+    
+    // 绘制障碍物
     const auto& obstacles = game->getObstacles();
     for (const QPoint& obstacle : obstacles) {
-        QRect cell(obstacle.x() * CELL_SIZE, obstacle.y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        painter.drawRect(cell);
+        QRect obstacleRect(obstacle.x() * CELL_SIZE, obstacle.y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        drawObstacle(painter, obstacleRect);
     }
-
-    // Draw head
+    
+    // 绘制蛇头
     QPoint headPos = body[0];
     QRect headRect(headPos.x() * CELL_SIZE, headPos.y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    QColor currentHeadColor;
-    switch (selectedBodyColor) { // Use a slightly different shade for the head based on body color
-        case GreenBody: currentHeadColor = QColor(0, 180, 0); break;
-        case BlueBody: currentHeadColor = QColor(0, 0, 255); break;
-        case YellowBody: currentHeadColor = QColor(255, 255, 0); break;
+    
+    // 计算方向（用于绘制三角形头部）
+    QPoint direction(0, 0);
+    if (body.size() > 1) {
+        direction = body[0] - body[1];
+    } else {
+        // 默认向右
+        direction = QPoint(1, 0);
     }
-    painter.setBrush(currentHeadColor);
-
-    switch (selectedHeadShape) {
-        case SquareHead:
-            painter.drawRect(headRect);
-            break;
-        case TriangleHead:
-            // Drawing a simple triangle for now, can be improved
-            {
-                QPoint p1, p2, p3;
-                // This is a basic triangle, need to adjust based on direction later
-                p1 = headRect.topLeft();
-                p2 = headRect.topRight();
-                p3 = headRect.bottomLeft(); // Simple example, not direction aware
-                QPolygon triangle;
-                triangle << p1 << p2 << p3;
-                painter.drawPolygon(triangle);
-            }
-            break;
-        case CircleHead:
-            painter.drawEllipse(headRect);
-            break;
-        case HexagonHead:
-            // Drawing a simple hexagon, can be improved
-            {
-                QPolygon hexagon;
-                // Basic hexagon points, not direction aware
-                hexagon << headRect.topLeft() + QPoint(CELL_SIZE/4, 0)
-                        << headRect.topRight() - QPoint(CELL_SIZE/4, 0)
-                        << headRect.topRight()
-                        << headRect.bottomRight() - QPoint(CELL_SIZE/4, 0)
-                        << headRect.bottomLeft() + QPoint(CELL_SIZE/4, 0)
-                        << headRect.bottomLeft();
-                painter.drawPolygon(hexagon);
-            }
-            break;
-    }
-
-    // Draw food
+    
+    drawSnakeHead(painter, headRect, direction);
+    
+    // 绘制食物
     QPoint foodPos = game->getFood().getPosition();
     QRect foodRect(foodPos.x() * CELL_SIZE, foodPos.y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    painter.setBrush(QColor(220, 50, 50));
-    painter.setPen(Qt::NoPen);
-    painter.drawEllipse(foodRect);
-    // Draw score
-    painter.setPen(Qt::black);
+    drawFood(painter, foodRect);
+    
+    // 绘制分数和时间
+    painter.setPen(QColor(220, 220, 255));
     painter.setFont(QFont("Arial", 14, QFont::Bold));
-    painter.drawText(10, GRID_HEIGHT * CELL_SIZE + 30, QString("Score: %1").arg(game->getScore()));
-    // Draw timer
-    painter.drawText(width() - 100, GRID_HEIGHT * CELL_SIZE + 30, QString("Time: %1s").arg(game->getElapsedTime()));
+    
+    // 分数背景
+    painter.setBrush(QColor(30, 30, 50, 200));
+    painter.setPen(Qt::NoPen);
+    painter.drawRoundedRect(10, GRID_HEIGHT * CELL_SIZE + 10, 120, 30, 5, 5);
+    
+    // 时间背景
+    painter.drawRoundedRect(width() - 130, GRID_HEIGHT * CELL_SIZE + 10, 120, 30, 5, 5);
+    
+    // 分数文本
+    painter.setPen(QColor(255, 215, 100));
+    painter.drawText(20, GRID_HEIGHT * CELL_SIZE + 30, QString("Score: %1").arg(game->getScore()));
+    
+    // 时间文本
+    painter.drawText(width() - 120, GRID_HEIGHT * CELL_SIZE + 30, QString("Time: %1s").arg(game->getElapsedTime()));
 }
 
 void GameRenderer::renderGameOver(QPainter& painter) {
-    painter.fillRect(rect(), QColor(240, 240, 240));
-    painter.setPen(Qt::red);
-    painter.setFont(QFont("Arial", 24, QFont::Bold));
-    painter.drawText(rect(), Qt::AlignCenter, QString("Game Over!\nScore: %1\nTime: %2s\n\nPress R to Restart\nPress Q to Quit").arg(game->getScore()).arg(game->getElapsedTime()));
+    // 半透明黑色背景
+    painter.fillRect(rect(), QColor(0, 0, 0, 180));
+    
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::white);
+    painter.setFont(QFont("Arial", 28, QFont::Bold));
+    
+    // 绘制游戏结束文本
+    QRect textRect = rect().adjusted(0, 50, 0, 0);
+    painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter, "GAME OVER");
+    
+    // 绘制分数和时间
+    painter.setFont(QFont("Arial", 18));
+    painter.drawText(textRect.adjusted(0, 80, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
+                    QString("Score: %1").arg(game->getScore()));
+    painter.drawText(textRect.adjusted(0, 120, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
+                    QString("Time: %1s").arg(game->getElapsedTime()));
+    
+    // 绘制选项
+    painter.setFont(QFont("Arial", 16));
+    painter.drawText(textRect.adjusted(0, 180, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
+                    "Press R to Restart");
+    painter.drawText(textRect.adjusted(0, 210, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
+                    "Press Q to Quit");
+}
+
+void GameRenderer::drawSnakeHead(QPainter& painter, const QRect& headRect, const QPoint& direction) {
+    painter.save();
+    
+    // 设置头部颜色
+    QColor headColor;
+    switch (selectedBodyColor) {
+        case GreenBody: headColor = QColor(0, 200, 0); break;
+        case BlueBody: headColor = QColor(0, 150, 255); break;
+        case YellowBody: headColor = QColor(255, 220, 0); break;
+        case RainbowBody: headColor = QColor(0, 200, 150); break;
+    }
+    
+    // 头部渐变
+    QLinearGradient headGradient(headRect.topLeft(), headRect.bottomRight());
+    headGradient.setColorAt(0, headColor.lighter(150));
+    headGradient.setColorAt(1, headColor.darker(120));
+    painter.setBrush(headGradient);
+    painter.setPen(QPen(headColor.darker(150), 1.5));
+    
+    // 根据选择的形状绘制头部
+    switch (selectedHeadShape) {
+        case SquareHead:
+            painter.drawRoundedRect(headRect, 15, 15);
+            break;
+            
+        case TriangleHead: {
+            QPolygon triangle;
+            QPoint center = headRect.center();
+            
+            // 根据方向旋转三角形
+            qreal angle = 0;
+            if (direction.x() == 1) angle = 0;    // 右
+            else if (direction.x() == -1) angle = 180; // 左
+            else if (direction.y() == 1) angle = 90;  // 下
+            else if (direction.y() == -1) angle = 270; // 上
+            
+            painter.translate(center);
+            painter.rotate(angle);
+            
+            int size = CELL_SIZE / 2;
+            triangle << QPoint(-size, -size)
+                     << QPoint(size, 0)
+                     << QPoint(-size, size);
+            
+            painter.drawPolygon(triangle);
+            break;
+        }
+            
+        case CircleHead:
+            painter.drawEllipse(headRect);
+            break;
+            
+        case HexagonHead: {
+            QPolygon hexagon;
+            int offset = CELL_SIZE / 4;
+            hexagon << QPoint(headRect.left() + offset, headRect.top())
+                    << QPoint(headRect.right() - offset, headRect.top())
+                    << QPoint(headRect.right(), headRect.center().y())
+                    << QPoint(headRect.right() - offset, headRect.bottom())
+                    << QPoint(headRect.left() + offset, headRect.bottom())
+                    << QPoint(headRect.left(), headRect.center().y());
+            painter.drawPolygon(hexagon);
+            break;
+        }
+    }
+    
+    // 绘制眼睛（除了三角形头部）
+    if (selectedHeadShape != TriangleHead) {
+        painter.setBrush(Qt::white);
+        painter.setPen(Qt::NoPen);
+        
+        int eyeSize = CELL_SIZE / 6;
+        int eyeOffset = CELL_SIZE / 4;
+        
+        // 根据方向调整眼睛位置
+        QPoint leftEye, rightEye;
+        
+        if (direction.x() == 1) { // 向右
+            leftEye = headRect.topRight() + QPoint(-eyeOffset*2, eyeOffset);
+            rightEye = headRect.bottomRight() + QPoint(-eyeOffset*2, -eyeOffset);
+        } else if (direction.x() == -1) { // 向左
+            leftEye = headRect.topLeft() + QPoint(eyeOffset*2, eyeOffset);
+            rightEye = headRect.bottomLeft() + QPoint(eyeOffset*2, -eyeOffset);
+        } else if (direction.y() == 1) { // 向下
+            leftEye = headRect.bottomLeft() + QPoint(eyeOffset, -eyeOffset*2);
+            rightEye = headRect.bottomRight() + QPoint(-eyeOffset, -eyeOffset*2);
+        } else { // 向上
+            leftEye = headRect.topLeft() + QPoint(eyeOffset, eyeOffset*2);
+            rightEye = headRect.topRight() + QPoint(-eyeOffset, eyeOffset*2);
+        }
+        
+        painter.drawEllipse(leftEye, eyeSize, eyeSize);
+        painter.drawEllipse(rightEye, eyeSize, eyeSize);
+        
+        // 瞳孔
+        painter.setBrush(Qt::black);
+        painter.drawEllipse(leftEye, eyeSize/2, eyeSize/2);
+        painter.drawEllipse(rightEye, eyeSize/2, eyeSize/2);
+    }
+    
+    painter.restore();
+}
+
+void GameRenderer::drawSnakeSegment(QPainter& painter, const QRect& segmentRect, int segmentIndex, int totalSegments) {
+    painter.save();
+    
+    // 设置身体颜色
+    QColor segmentColor;
+    
+    switch (selectedBodyColor) {
+        case GreenBody:
+            segmentColor = QColor(0, 180, 0);
+            break;
+        case BlueBody:
+            segmentColor = QColor(0, 120, 220);
+            break;
+        case YellowBody:
+            segmentColor = QColor(220, 180, 0);
+            break;
+        case RainbowBody: {
+            // 彩虹效果：根据位置改变颜色
+            qreal hue = (segmentIndex * 360.0) / totalSegments;
+            segmentColor = QColor::fromHsv(static_cast<int>(hue) % 360, 200, 200);
+            break;
+        }
+    }
+    
+    // 身体渐变
+    QLinearGradient bodyGradient(segmentRect.topLeft(), segmentRect.bottomRight());
+    bodyGradient.setColorAt(0, segmentColor.lighter(130));
+    bodyGradient.setColorAt(1, segmentColor.darker(130));
+    
+    painter.setBrush(bodyGradient);
+    painter.setPen(QPen(segmentColor.darker(150), 1.5));
+    
+    // 绘制圆角矩形身体
+    painter.drawRoundedRect(segmentRect, 10, 10);
+    
+    // 添加纹理效果
+    painter.setPen(QPen(segmentColor.lighter(150), 1));
+    painter.drawLine(segmentRect.center().x() - 3, segmentRect.center().y() - 3,
+                     segmentRect.center().x() + 3, segmentRect.center().y() + 3);
+    painter.drawLine(segmentRect.center().x() + 3, segmentRect.center().y() - 3,
+                     segmentRect.center().x() - 3, segmentRect.center().y() + 3);
+    
+    painter.restore();
+}
+
+void GameRenderer::drawFood(QPainter& painter, const QRect& foodRect) {
+    painter.save();
+    
+    // 应用食物动画效果
+    painter.translate(foodRect.center());
+    painter.scale(foodScale, foodScale);
+    painter.rotate(foodRotation * 10);
+    painter.translate(-foodRect.center());
+    
+    // 绘制苹果主体
+    QRadialGradient foodGradient(foodRect.center(), foodRect.width()/2);
+    foodGradient.setColorAt(0, QColor(255, 100, 100).lighter(150));
+    foodGradient.setColorAt(1, QColor(220, 50, 50).darker(120));
+    
+    painter.setBrush(foodGradient);
+    painter.setPen(QPen(QColor(180, 40, 40), 1.5));
+    painter.drawEllipse(foodRect);
+    
+    // 绘制苹果叶子
+    painter.setBrush(QColor(100, 220, 100));
+    painter.setPen(QPen(QColor(80, 180, 80), 1));
+    
+    QPolygon leaf;
+    leaf << foodRect.topRight() + QPoint(-5, 5) 
+         << foodRect.topRight() + QPoint(5, -5) 
+         << foodRect.topRight() + QPoint(15, 0);
+    painter.drawPolygon(leaf);
+    
+    // 绘制苹果茎
+    painter.setPen(QPen(QColor(150, 100, 50), 2));
+    painter.drawLine(foodRect.topRight() + QPoint(-5, 5), 
+                    foodRect.topRight() + QPoint(-10, -5));
+    
+    painter.restore();
+}
+
+void GameRenderer::drawObstacle(QPainter& painter, const QRect& obstacleRect) {
+    painter.save();
+    
+    // 岩石纹理
+    QLinearGradient obstacleGradient(obstacleRect.topLeft(), obstacleRect.bottomRight());
+    obstacleGradient.setColorAt(0, QColor(100, 100, 120));
+    obstacleGradient.setColorAt(1, QColor(70, 70, 90));
+    
+    painter.setBrush(obstacleGradient);
+    painter.setPen(QPen(QColor(50, 50, 70), 1.5));
+    painter.drawRoundedRect(obstacleRect, 5, 5);
+    
+    // 添加岩石纹理
+    painter.setPen(QPen(QColor(120, 120, 140), 1));
+    painter.drawLine(obstacleRect.topLeft() + QPoint(5, 5), obstacleRect.bottomRight() - QPoint(5, 5));
+    painter.drawLine(obstacleRect.topRight() + QPoint(-5, 5), obstacleRect.bottomLeft() + QPoint(5, -5));
+    
+    painter.restore();
 }
 
 void GameRenderer::handleMenuKeyPress(int key) {
@@ -220,15 +463,15 @@ void GameRenderer::handleMenuKeyPress(int key) {
                     break;
                 case Qt::Key_D:
                     currentMenuState = DifficultyMenu;
-                    update(); // Redraw menu
+                    update();
                     break;
                 case Qt::Key_A:
                     currentMenuState = AppearanceMenu;
-                    update(); // Redraw menu
+                    update();
                     break;
                 case Qt::Key_M:
                     currentMenuState = MapMenu;
-                    update(); // Redraw menu
+                    update();
                     break;
                 case Qt::Key_Q:
                     qApp->quit();
@@ -240,17 +483,17 @@ void GameRenderer::handleMenuKeyPress(int key) {
         case DifficultyMenu:
             switch (key) {
                 case Qt::Key_1:
-                    game->setDifficulty(1); // Easy
+                    game->setDifficulty(1);
                     currentMenuState = MainMenu;
                     update();
                     break;
                 case Qt::Key_2:
-                    game->setDifficulty(2); // Medium
+                    game->setDifficulty(2);
                     currentMenuState = MainMenu;
                     update();
                     break;
                 case Qt::Key_3:
-                    game->setDifficulty(3); // Hard
+                    game->setDifficulty(3);
                     currentMenuState = MainMenu;
                     update();
                     break;
@@ -268,13 +511,11 @@ void GameRenderer::handleMenuKeyPress(int key) {
         case AppearanceMenu:
             switch (key) {
                 case Qt::Key_H:
-                    // Cycle head shape
                     selectedHeadShape = static_cast<SnakeHeadShape>((selectedHeadShape + 1) % 4);
                     update();
                     break;
                 case Qt::Key_C:
-                    // Cycle body color
-                    selectedBodyColor = static_cast<SnakeBodyColor>((selectedBodyColor + 1) % 3);
+                    selectedBodyColor = static_cast<SnakeBodyColor>((selectedBodyColor + 1) % 4); // 更新为4种颜色
                     update();
                     break;
                 case Qt::Key_B:
@@ -291,13 +532,11 @@ void GameRenderer::handleMenuKeyPress(int key) {
         case MapMenu:
             switch (key) {
                 case Qt::Key_1:
-                    // Select Empty Map
                     game->setSelectedMap(MapType::EmptyMap);
                     currentMenuState = MainMenu;
                     update();
                     break;
                 case Qt::Key_2:
-                    // Select Obstacle Map
                     game->setSelectedMap(MapType::ObstacleMap);
                     currentMenuState = MainMenu;
                     update();
@@ -351,7 +590,8 @@ void GameRenderer::handleGameOverKeyPress(int key) {
 void GameRenderer::paintEvent(QPaintEvent* event) {
     Q_UNUSED(event);
     QPainter painter(this);
-
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    
     switch (game->getGameState()) {
         case Menu:
             renderMenu(painter);
