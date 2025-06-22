@@ -10,7 +10,6 @@
 #include <QUrl>
 #include <QDir>
 #include <ctime>   // For time
-#include <QDebug>
 
 const int GRID_WIDTH = 20;
 const int GRID_HEIGHT = 20;
@@ -18,6 +17,7 @@ const int GRID_HEIGHT = 20;
 SnakeGame::SnakeGame(QObject *parent)
     : QObject(parent), score(0), gameOverFlag(false), gameState(Menu), difficulty(1), elapsedTime(0), highScore(0) {
     loadHighScore();
+    qDebug() << "High Score loaded:" << highScore;
     srand(time(0)); // Seed random number generator
     // Start a timer for elapsed time
     QTimer* timer = new QTimer(this);
@@ -187,10 +187,6 @@ void SnakeGame::checkCollisions() {
     QPoint head = snake.getHead();
     // Wall collision
     if (head.x() < 0 || head.x() >= GRID_WIDTH || head.y() < 0 || head.y() >= GRID_HEIGHT) {
-        if (collisionSound->isLoaded()) {
-            qDebug() << "Playing collision sound (wall)";
-            collisionSound->play();
-        }
         gameOverFlag = true;
         gameState = GameOver;
         if (score > highScore) {
@@ -202,10 +198,6 @@ void SnakeGame::checkCollisions() {
     }
     // Self collision
     if (snake.checkSelfCollision()) {
-        if (collisionSound->isLoaded()) {
-            qDebug() << "Playing collision sound (self)";
-            collisionSound->play();
-        }
         gameOverFlag = true;
         gameState = GameOver;
         if (score > highScore) {

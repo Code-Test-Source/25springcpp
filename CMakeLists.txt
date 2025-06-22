@@ -20,6 +20,13 @@ set(SOURCES
     GameRenderer.cpp
 )
 
-add_executable(SnakeGameQt ${SOURCES})
+add_executable(SnakeGameQt WIN32 ${SOURCES})
 
+# Hide console window on Windows
+set_target_properties(
+    SnakeGameQt
+    PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE"
+               LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+)
 target_link_libraries(SnakeGameQt PRIVATE Qt6::Widgets)
+

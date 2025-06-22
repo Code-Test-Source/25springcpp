@@ -289,7 +289,6 @@ Makefile: 25springcpp.pro ../../../../Qt/6.9.1/mingw_64/mkspecs/win32-g++/qmake.
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/resolve_config.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/exclusive_builds_post.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/default_post.prf \
-		../../../../Qt/6.9.1/mingw_64/mkspecs/features/win32/console.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/precompile_header.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/warn_on.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/permissions.prf \
@@ -301,6 +300,7 @@ Makefile: 25springcpp.pro ../../../../Qt/6.9.1/mingw_64/mkspecs/win32-g++/qmake.
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/uic.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/qmake_use.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/file_copies.prf \
+		../../../../Qt/6.9.1/mingw_64/mkspecs/features/win32/windows.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/testcase_targets.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/exceptions.prf \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/yacc.prf \
@@ -311,6 +311,7 @@ Makefile: 25springcpp.pro ../../../../Qt/6.9.1/mingw_64/mkspecs/win32-g++/qmake.
 		../../../../Qt/6.9.1/mingw_64/lib/Qt6Gui.prl \
 		../../../../Qt/6.9.1/mingw_64/lib/Qt6Network.prl \
 		../../../../Qt/6.9.1/mingw_64/lib/Qt6Core.prl \
+		../../../../Qt/6.9.1/mingw_64/lib/Qt6EntryPoint.prl \
 		../../../../Qt/6.9.1/mingw_64/mkspecs/features/build_pass.prf
 	$(QMAKE) -o Makefile 25springcpp.pro
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/spec_pre.prf:
@@ -532,7 +533,6 @@ Makefile: 25springcpp.pro ../../../../Qt/6.9.1/mingw_64/mkspecs/win32-g++/qmake.
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/resolve_config.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/exclusive_builds_post.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/default_post.prf:
-../../../../Qt/6.9.1/mingw_64/mkspecs/features/win32/console.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/precompile_header.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/warn_on.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/permissions.prf:
@@ -544,6 +544,7 @@ Makefile: 25springcpp.pro ../../../../Qt/6.9.1/mingw_64/mkspecs/win32-g++/qmake.
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/uic.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/qmake_use.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/file_copies.prf:
+../../../../Qt/6.9.1/mingw_64/mkspecs/features/win32/windows.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/testcase_targets.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/exceptions.prf:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/yacc.prf:
@@ -554,6 +555,7 @@ Makefile: 25springcpp.pro ../../../../Qt/6.9.1/mingw_64/mkspecs/win32-g++/qmake.
 ../../../../Qt/6.9.1/mingw_64/lib/Qt6Gui.prl:
 ../../../../Qt/6.9.1/mingw_64/lib/Qt6Network.prl:
 ../../../../Qt/6.9.1/mingw_64/lib/Qt6Core.prl:
+../../../../Qt/6.9.1/mingw_64/lib/Qt6EntryPoint.prl:
 ../../../../Qt/6.9.1/mingw_64/mkspecs/features/build_pass.prf:
 qmake: FORCE
 	@$(QMAKE) -o Makefile 25springcpp.pro

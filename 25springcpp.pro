@@ -1,6 +1,6 @@
 QT += widgets multimedia
 CONFIG += c++20
-CONFIG += console
+CONFIG -= console
 TARGET = SnakeGameQt
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -12,5 +12,3 @@ HEADERS += Snake.h \
     SnakeGame.h \
     Food.h \
     GameRenderer.h
-
-RESOURCES = sounds.qrc

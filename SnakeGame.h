@@ -4,7 +4,6 @@
 #include <QObject>
 #include "Snake.h"
 #include "Food.h"
-#include <QSoundEffect>
 
 enum GameState {
     Menu,
@@ -66,10 +65,6 @@ private:
     bool waitingForFirstMove; // Add this line
     void checkCollisions();
     void spawnFood();
-
-private:
-    QSoundEffect* eatSound;
-    QSoundEffect* collisionSound;
 };
 
 #endif // SNAKEGAME_H

@@ -50,7 +50,7 @@ cmake_ninja_workdir = C$:/Users/22315/Desktop/25springcpp/build/
 build cmake_object_order_depends_target_SnakeGameQt: phony || .
 
 build CMakeFiles/SnakeGameQt.dir/main.cpp.obj: CXX_COMPILER__SnakeGameQt_unscanned_Debug C$:/Users/22315/Desktop/25springcpp/main.cpp || cmake_object_order_depends_target_SnakeGameQt
-  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
   DEP_FILE = CMakeFiles\SnakeGameQt.dir\main.cpp.obj.d
   FLAGS = -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g -std=gnu++17
   INCLUDES = -isystem C:/Qt/6.9.1/mingw_64/include/QtWidgets -isystem C:/Qt/6.9.1/mingw_64/include -isystem C:/Qt/6.9.1/mingw_64/include/QtCore -isystem C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.9.1/mingw_64/include/QtGui
@@ -58,7 +58,7 @@ build CMakeFiles/SnakeGameQt.dir/main.cpp.obj: CXX_COMPILER__SnakeGameQt_unscann
   OBJECT_FILE_DIR = CMakeFiles\SnakeGameQt.dir
 
 build CMakeFiles/SnakeGameQt.dir/SnakeGame.cpp.obj: CXX_COMPILER__SnakeGameQt_unscanned_Debug C$:/Users/22315/Desktop/25springcpp/SnakeGame.cpp || cmake_object_order_depends_target_SnakeGameQt
-  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
   DEP_FILE = CMakeFiles\SnakeGameQt.dir\SnakeGame.cpp.obj.d
   FLAGS = -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g -std=gnu++17
   INCLUDES = -isystem C:/Qt/6.9.1/mingw_64/include/QtWidgets -isystem C:/Qt/6.9.1/mingw_64/include -isystem C:/Qt/6.9.1/mingw_64/include/QtCore -isystem C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.9.1/mingw_64/include/QtGui
@@ -66,7 +66,7 @@ build CMakeFiles/SnakeGameQt.dir/SnakeGame.cpp.obj: CXX_COMPILER__SnakeGameQt_un
   OBJECT_FILE_DIR = CMakeFiles\SnakeGameQt.dir
 
 build CMakeFiles/SnakeGameQt.dir/Snake.cpp.obj: CXX_COMPILER__SnakeGameQt_unscanned_Debug C$:/Users/22315/Desktop/25springcpp/Snake.cpp || cmake_object_order_depends_target_SnakeGameQt
-  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
   DEP_FILE = CMakeFiles\SnakeGameQt.dir\Snake.cpp.obj.d
   FLAGS = -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g -std=gnu++17
   INCLUDES = -isystem C:/Qt/6.9.1/mingw_64/include/QtWidgets -isystem C:/Qt/6.9.1/mingw_64/include -isystem C:/Qt/6.9.1/mingw_64/include/QtCore -isystem C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.9.1/mingw_64/include/QtGui
@@ -74,7 +74,7 @@ build CMakeFiles/SnakeGameQt.dir/Snake.cpp.obj: CXX_COMPILER__SnakeGameQt_unscan
   OBJECT_FILE_DIR = CMakeFiles\SnakeGameQt.dir
 
 build CMakeFiles/SnakeGameQt.dir/Food.cpp.obj: CXX_COMPILER__SnakeGameQt_unscanned_Debug C$:/Users/22315/Desktop/25springcpp/Food.cpp || cmake_object_order_depends_target_SnakeGameQt
-  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
   DEP_FILE = CMakeFiles\SnakeGameQt.dir\Food.cpp.obj.d
   FLAGS = -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g -std=gnu++17
   INCLUDES = -isystem C:/Qt/6.9.1/mingw_64/include/QtWidgets -isystem C:/Qt/6.9.1/mingw_64/include -isystem C:/Qt/6.9.1/mingw_64/include/QtCore -isystem C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.9.1/mingw_64/include/QtGui
@@ -82,7 +82,7 @@ build CMakeFiles/SnakeGameQt.dir/Food.cpp.obj: CXX_COMPILER__SnakeGameQt_unscann
   OBJECT_FILE_DIR = CMakeFiles\SnakeGameQt.dir
 
 build CMakeFiles/SnakeGameQt.dir/GameRenderer.cpp.obj: CXX_COMPILER__SnakeGameQt_unscanned_Debug C$:/Users/22315/Desktop/25springcpp/GameRenderer.cpp || cmake_object_order_depends_target_SnakeGameQt
-  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
   DEP_FILE = CMakeFiles\SnakeGameQt.dir\GameRenderer.cpp.obj.d
   FLAGS = -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g -std=gnu++17
   INCLUDES = -isystem C:/Qt/6.9.1/mingw_64/include/QtWidgets -isystem C:/Qt/6.9.1/mingw_64/include -isystem C:/Qt/6.9.1/mingw_64/include/QtCore -isystem C:/Qt/6.9.1/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.9.1/mingw_64/include/QtGui
@@ -97,9 +97,10 @@ build CMakeFiles/SnakeGameQt.dir/GameRenderer.cpp.obj: CXX_COMPILER__SnakeGameQt
 #############################################
 # Link the executable SnakeGameQt.exe
 
-build SnakeGameQt.exe: CXX_EXECUTABLE_LINKER__SnakeGameQt_Debug CMakeFiles/SnakeGameQt.dir/main.cpp.obj CMakeFiles/SnakeGameQt.dir/SnakeGame.cpp.obj CMakeFiles/SnakeGameQt.dir/Snake.cpp.obj CMakeFiles/SnakeGameQt.dir/Food.cpp.obj CMakeFiles/SnakeGameQt.dir/GameRenderer.cpp.obj | C$:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Core.a
+build SnakeGameQt.exe: CXX_EXECUTABLE_LINKER__SnakeGameQt_Debug CMakeFiles/SnakeGameQt.dir/main.cpp.obj CMakeFiles/SnakeGameQt.dir/SnakeGame.cpp.obj CMakeFiles/SnakeGameQt.dir/Snake.cpp.obj CMakeFiles/SnakeGameQt.dir/Food.cpp.obj CMakeFiles/SnakeGameQt.dir/GameRenderer.cpp.obj | C$:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a C$:/Qt/6.9.1/mingw_64/lib/libQt6Core.a C$:/Qt/6.9.1/mingw_64/lib/libQt6EntryPoint.a
   FLAGS = -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG -g
-  LINK_LIBRARIES = C:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Core.a  -lmpr  -luserenv  -ld3d11  -ldxgi  -ldxguid  -ld3d12  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  LINK_FLAGS = -mwindows /SUBSYSTEM:CONSOLE
+  LINK_LIBRARIES = C:/Qt/6.9.1/mingw_64/lib/libQt6Widgets.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Gui.a  C:/Qt/6.9.1/mingw_64/lib/libQt6Core.a  -lmpr  -luserenv  -lmingw32  C:/Qt/6.9.1/mingw_64/lib/libQt6EntryPoint.a  -lshell32  -ld3d11  -ldxgi  -ldxguid  -ld3d12  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\SnakeGameQt.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
