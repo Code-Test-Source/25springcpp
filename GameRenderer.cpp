@@ -187,13 +187,18 @@ void GameRenderer::renderPlaying(QPainter& painter) {
     QPoint headPos = body[0];
     QRect headRect(headPos.x() * CELL_SIZE, headPos.y() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     
-    // 计算方向（用于绘制三角形头部）
-    QPoint direction(0, 0);
+    // 计算方向（修改后的部分）
+    QPoint direction;
     if (body.size() > 1) {
         direction = body[0] - body[1];
     } else {
-        // 默认向右
-        direction = QPoint(1, 0);
+        // 根据当前方向设置
+        switch (game->getSnake().getDirection()) {
+            case Snake::Up:    direction = QPoint(0, -1); break;
+            case Snake::Down:  direction = QPoint(0, 1); break;
+            case Snake::Left:  direction = QPoint(-1, 0); break;
+            case Snake::Right: direction = QPoint(1, 0); break;
+        }
     }
     
     drawSnakeHead(painter, headRect, direction);
@@ -224,30 +229,63 @@ void GameRenderer::renderPlaying(QPainter& painter) {
 }
 
 void GameRenderer::renderGameOver(QPainter& painter) {
-    // 半透明黑色背景
-    painter.fillRect(rect(), QColor(0, 0, 0, 180));
-    
+    // 渐变背景（暗红到暗紫）
+    QLinearGradient gradient(0, 0, width(), height());
+    gradient.setColorAt(0, QColor(120, 0, 0, 220));
+    gradient.setColorAt(1, QColor(60, 0, 60, 220));
+    painter.fillRect(rect(), gradient);
+
+    // 添加纹理效果
+    painter.setPen(QPen(QColor(255, 255, 255, 30), 2));
+    for (int i = 0; i < width(); i += 30) {
+        painter.drawLine(i, 0, i, height());
+    }
+    for (int i = 0; i < height(); i += 30) {
+        painter.drawLine(0, i, width(), i);
+    }
+
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(Qt::white);
     painter.setFont(QFont("Arial", 28, QFont::Bold));
-    
-    // 绘制游戏结束文本
+
+    // 绘制游戏结束文本（带阴影效果）
     QRect textRect = rect().adjusted(0, 50, 0, 0);
+    painter.setPen(QColor(0, 0, 0, 150));
+    painter.drawText(textRect.translated(2, 2), Qt::AlignTop | Qt::AlignHCenter, "GAME OVER");
+    painter.setPen(QColor(255, 100, 100));
     painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter, "GAME OVER");
-    
-    // 绘制分数和时间
+
+    // 绘制分数和时间（优化排版）
     painter.setFont(QFont("Arial", 18));
-    painter.drawText(textRect.adjusted(0, 80, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
-                    QString("Score: %1").arg(game->getScore()));
-    painter.drawText(textRect.adjusted(0, 120, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
-                    QString("Time: %1s").arg(game->getElapsedTime()));
+    QRect infoRect = textRect.adjusted(0, 80, 0, 0);
+    QStringList infoText = {
+        QString("Score: %1").arg(game->getScore()),
+        QString("Time: %1s").arg(game->getElapsedTime()),
+        game->getScore() > game->getHighScore() ? 
+            "NEW HIGH SCORE!" : 
+            QString("High Score: %1").arg(game->getHighScore())
+    };
     
-    // 绘制选项
-    painter.setFont(QFont("Arial", 16));
-    painter.drawText(textRect.adjusted(0, 180, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
-                    "Press R to Restart");
-    painter.drawText(textRect.adjusted(0, 210, 0, 0), Qt::AlignTop | Qt::AlignHCenter, 
-                    "Press Q to Quit");
+    for (int i = 0; i < infoText.size(); ++i) {
+        QRect lineRect = infoRect.adjusted(0, i * 40, 0, 0);
+        painter.setPen(QColor(0, 0, 0, 150));
+        painter.drawText(lineRect.translated(2, 2), Qt::AlignTop | Qt::AlignHCenter, infoText[i]);
+        painter.setPen(i == 2 && game->getScore() > game->getHighScore() ? 
+                      QColor(255, 215, 0) : QColor(200, 200, 255));
+        painter.drawText(lineRect, Qt::AlignTop | Qt::AlignHCenter, infoText[i]);
+    }
+
+    // 绘制操作提示（使用图标式设计）
+    QRect buttonRect(width()/2 - 100, height() - 120, 200, 40);
+    painter.setBrush(QColor(80, 80, 80, 200));
+    painter.setPen(QPen(QColor(200, 200, 200), 2));
+    painter.drawRoundedRect(buttonRect, 10, 10);
+    painter.setPen(QColor(200, 230, 255));
+    painter.drawText(buttonRect, Qt::AlignCenter, " Reset Game(R)");
+    
+    QRect quitRect(width()/2 - 100, height() - 70, 200, 40);
+    painter.drawRoundedRect(quitRect, 10, 10);
+    painter.drawText(quitRect, Qt::AlignCenter, " Quit(Q) ");
 }
 
 void GameRenderer::drawSnakeHead(QPainter& painter, const QRect& headRect, const QPoint& direction) {
