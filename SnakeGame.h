@@ -19,6 +19,9 @@ enum MapType {
 class SnakeGame : public QObject {
     Q_OBJECT
 public:
+    void setSnakeDirection(Snake::Direction dir);
+    enum GameState { Menu, Playing, GameOver };
+    void loadMap(int mapIndex);
     explicit SnakeGame(QObject *parent = nullptr);
     void startGame();
     void restartGame();
@@ -26,7 +29,7 @@ public:
     void update();
     int getScore() const;
     bool isGameOver() const;
-    const Snake& getSnake() const;
+    const Snake& getSnake() const { return snake; }
     const Food& getFood() const;
     GameState getGameState() const;
     void setGameState(GameState state);

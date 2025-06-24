@@ -147,20 +147,47 @@ bool SnakeGame::isGameOver() const {
     return gameOverFlag;
 }
 
-const Snake& SnakeGame::getSnake() const {
-    return snake;
-}
-
 const Food& SnakeGame::getFood() const {
     return food;
 }
 
-GameState SnakeGame::getGameState() const {
+SnakeGame::GameState SnakeGame::getGameState() const {
     return gameState;
 }
 
 void SnakeGame::setGameState(GameState state) {
     gameState = state;
+}
+
+void SnakeGame::setSnakeDirection(Snake::Direction dir) {
+    snake.setDirection(dir);
+}
+
+void SnakeGame::loadMap(int mapIndex) {
+    // 实现地图加载逻辑
+    // 例如：
+    obstacles.clear(); // 清空现有障碍物
+    
+    switch(mapIndex) {
+        case 0: // 默认地图（无障碍）
+            break;
+        case 1: // 地图1
+            // 添加障碍物位置
+            obstacles.append(QPoint(5, 5));
+            obstacles.append(QPoint(5, 6));
+            // ...
+            break;
+        case 2: // 地图2
+            // 添加不同障碍物
+            for(int x = 3; x < 10; x++) {
+                obstacles.append(QPoint(x, 10));
+            }
+            break;
+        // 更多地图...
+    }
+    
+    // 重置游戏状态
+    restartGame();
 }
 
 int SnakeGame::getDifficulty() const {

@@ -449,6 +449,7 @@ release/moc_GameRenderer.cpp: GameRenderer.h \
 		../../Qt/6.9.1/mingw_64/include/QtGui/qpen.h \
 		../../Qt/6.9.1/mingw_64/include/QtGui/QLinearGradient \
 		../../Qt/6.9.1/mingw_64/include/QtGui/QRadialGradient \
+		../../Qt/6.9.1/mingw_64/include/QtGui/QMouseEvent \
 		SnakeGame.h \
 		Snake.h \
 		../../Qt/6.9.1/mingw_64/include/QtCore/QPoint \
@@ -686,7 +687,8 @@ release/main.o: main.cpp ../../Qt/6.9.1/mingw_64/include/QtWidgets/QApplication 
 		../../Qt/6.9.1/mingw_64/include/QtGui/qtextoption.h \
 		../../Qt/6.9.1/mingw_64/include/QtGui/qpen.h \
 		../../Qt/6.9.1/mingw_64/include/QtGui/QLinearGradient \
-		../../Qt/6.9.1/mingw_64/include/QtGui/QRadialGradient
+		../../Qt/6.9.1/mingw_64/include/QtGui/QRadialGradient \
+		../../Qt/6.9.1/mingw_64/include/QtGui/QMouseEvent
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\main.o main.cpp
 
 release/Snake.o: Snake.cpp Snake.h \
@@ -1245,6 +1247,7 @@ release/GameRenderer.o: GameRenderer.cpp GameRenderer.h \
 		../../Qt/6.9.1/mingw_64/include/QtGui/qpen.h \
 		../../Qt/6.9.1/mingw_64/include/QtGui/QLinearGradient \
 		../../Qt/6.9.1/mingw_64/include/QtGui/QRadialGradient \
+		../../Qt/6.9.1/mingw_64/include/QtGui/QMouseEvent \
 		SnakeGame.h \
 		Snake.h \
 		../../Qt/6.9.1/mingw_64/include/QtCore/QPoint \
