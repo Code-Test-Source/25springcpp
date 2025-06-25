@@ -38,7 +38,7 @@ void SnakeGame::startGame() {
     elapsedTime = 0;
     gameState = Playing;
     obstacles.clear(); // 清空障碍物
-
+    
     // 根据选择的地图类型生成障碍物
     if (selectedMap == ObstacleMap) {
         // 生成边界障碍物
@@ -50,23 +50,54 @@ void SnakeGame::startGame() {
             obstacles.append(QPoint(0, y));              // 左边界
             obstacles.append(QPoint(GRID_WIDTH - 1, y)); // 右边界
         }
-
+        
         // 添加一些内部障碍物（数量适中）
         int numObstacles = 15; // 例如15个内部障碍物
+        QList<QPoint> tempObstacles; // 临时存储新生成的障碍物
+        
         for (int i = 0; i < numObstacles; ++i) {
             int ox, oy;
-            do {
+            bool validPosition = false;
+            int attempts = 0;
+            const int maxAttempts = 100; // 防止无限循环
+            
+            while (!validPosition && attempts < maxAttempts) {
+                attempts++;
                 // 确保障碍物不在边界（因为边界已经添加）和蛇起始位置
                 ox = 1 + rand() % (GRID_WIDTH - 2);
                 oy = 1 + rand() % (GRID_HEIGHT - 2);
-            } while (
-                obstacles.contains(QPoint(ox, oy)) || 
-                (ox == GRID_WIDTH / 2 && oy == GRID_HEIGHT / 2) // 蛇起始位置（中心）
-            );
-            obstacles.append(QPoint(ox, oy));
+                
+                // 检查是否与现有障碍物冲突
+                validPosition = true;
+                
+                // 检查边界障碍物
+                if (obstacles.contains(QPoint(ox, oy))) {
+                    validPosition = false;
+                    continue;
+                }
+                
+                // 检查临时障碍物列表
+                if (tempObstacles.contains(QPoint(ox, oy))) {
+                    validPosition = false;
+                    continue;
+                }
+                
+                // 检查蛇的起始位置（中心）
+                if (ox == GRID_WIDTH / 2 && oy == GRID_HEIGHT / 2) {
+                    validPosition = false;
+                    continue;
+                }
+            }
+            
+            if (validPosition) {
+                tempObstacles.append(QPoint(ox, oy));
+            }
         }
+        
+        // 将临时障碍物添加到主列表
+        obstacles.append(tempObstacles);
     }
-
+    
     spawnFood();
     emit gameUpdated();
     waitingForFirstMove = true;
@@ -76,6 +107,7 @@ void SnakeGame::startGame() {
 
 void SnakeGame::restartGame() {
     gameState = Menu;
+    startGame();
     emit gameUpdated(); // Emit signal to trigger repaint in GameRenderer
 }
 
