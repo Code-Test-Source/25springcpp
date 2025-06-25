@@ -15,17 +15,18 @@ const int GRID_WIDTH = 20;
 const int GRID_HEIGHT = 20;
 
 SnakeGame::SnakeGame(QObject *parent)
-    : QObject(parent), score(0), gameOverFlag(false), gameState(Menu), difficulty(1), elapsedTime(0), highScore(0) {
+    : QObject(parent), score(0), gameOverFlag(false), gameState(Menu), difficulty(1), elapsedTime(0), highScore(0){
     loadHighScore();
     qDebug() << "High Score loaded:" << highScore;
     srand(time(0)); // Seed random number generator
     // Start a timer for elapsed time
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]() {
-        if (gameState == Playing) {
-            elapsedTime++;
-        }
-    });
+    // 只有在游戏进行中且已按下第一个按键时才计时
+    if (gameState == Playing && !waitingForFirstMove) {
+        elapsedTime++;
+    }
+});
     timer->start(1000); // Update every second
     selectedMap = EmptyMap; // Default map
 }
@@ -36,32 +37,40 @@ void SnakeGame::startGame() {
     gameOverFlag = false;
     elapsedTime = 0;
     gameState = Playing;
+    obstacles.clear(); // 清空障碍物
 
-    // Clear previous obstacles
-    obstacles.clear();
-
-    // Load map based on selection
+    // 根据选择的地图类型生成障碍物
     if (selectedMap == ObstacleMap) {
-        // Generate a smaller number of random obstacles
-        int numObstacles = 50; // Reduced number of obstacles
+        // 生成边界障碍物
+        for (int x = 0; x < GRID_WIDTH; ++x) {
+            obstacles.append(QPoint(x, 0));               // 上边界
+            obstacles.append(QPoint(x, GRID_HEIGHT - 1)); // 下边界
+        }
+        for (int y = 1; y < GRID_HEIGHT - 1; ++y) {
+            obstacles.append(QPoint(0, y));              // 左边界
+            obstacles.append(QPoint(GRID_WIDTH - 1, y)); // 右边界
+        }
+
+        // 添加一些内部障碍物（数量适中）
+        int numObstacles = 15; // 例如15个内部障碍物
         for (int i = 0; i < numObstacles; ++i) {
             int ox, oy;
             do {
-                ox = rand() % GRID_WIDTH;
-                oy = rand() % GRID_HEIGHT;
-            } while (obstacles.contains(QPoint(ox, oy)) || (ox == GRID_WIDTH / 2 && oy == GRID_HEIGHT / 2)); // Avoid placing obstacles on snake start or other obstacles
+                // 确保障碍物不在边界（因为边界已经添加）和蛇起始位置
+                ox = 1 + rand() % (GRID_WIDTH - 2);
+                oy = 1 + rand() % (GRID_HEIGHT - 2);
+            } while (
+                obstacles.contains(QPoint(ox, oy)) || 
+                (ox == GRID_WIDTH / 2 && oy == GRID_HEIGHT / 2) // 蛇起始位置（中心）
+            );
             obstacles.append(QPoint(ox, oy));
         }
     }
 
     spawnFood();
     emit gameUpdated();
-
-    // Add flag to wait for first move
     waitingForFirstMove = true;
-    // Stop the game timer initially, it will be started on the first key press
-    // Assuming gameTimer is a member variable in GameRenderer and controlled by SnakeGame
-    // This requires a signal/slot connection or passing the timer object. Let's assume a signal for now.
+    elapsedTime = 0; 
     emit stopGameTimer();
 }
 
@@ -104,6 +113,7 @@ void SnakeGame::changeDirection(int key) {
 
         if (isDirectionKey) {
             waitingForFirstMove = false;
+            elapsedTime = 0; 
             emit startGameTimer(); // Start the game timer
             snake.setDirection(initialDir);
             return; // Exit after handling the first move
@@ -164,26 +174,11 @@ void SnakeGame::setSnakeDirection(Snake::Direction dir) {
 }
 
 void SnakeGame::loadMap(int mapIndex) {
-    // 实现地图加载逻辑
-    // 例如：
-    obstacles.clear(); // 清空现有障碍物
-    
-    switch(mapIndex) {
-        case 0: // 默认地图（无障碍）
-            break;
-        case 1: // 地图1
-            // 添加障碍物位置
-            obstacles.append(QPoint(5, 5));
-            obstacles.append(QPoint(5, 6));
-            // ...
-            break;
-        case 2: // 地图2
-            // 添加不同障碍物
-            for(int x = 3; x < 10; x++) {
-                obstacles.append(QPoint(x, 10));
-            }
-            break;
-        // 更多地图...
+    // 设置地图类型
+    if (mapIndex == 0) {
+        selectedMap = EmptyMap;
+    } else if (mapIndex == 1) {
+        selectedMap = ObstacleMap;
     }
     
     // 重置游戏状态
