@@ -461,67 +461,148 @@ void GameRenderer::addMenuItem(QPainter& painter, const QString& text, int y, in
 void GameRenderer::drawSnakeHead(QPainter& painter, const QRect& headRect, const QPoint& direction) {
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing);
+    painter.translate(headRect.center());
     
-    // 头部基础形状（圆角矩形）
-    QPainterPath path;
-    path.addRoundedRect(headRect, 8, 8);
-    
-    // 头部颜色渐变
-    QLinearGradient grad(headRect.topLeft(), headRect.bottomRight());
-    grad.setColorAt(0, snakeHeadColor.lighter(120));
-    grad.setColorAt(1, snakeHeadColor.darker(120));
-    painter.fillPath(path, grad);
-    
-    // 绘制眼睛
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(Qt::white);
-    QPoint eyePos = headRect.center();
-    
-    // 根据方向调整眼睛位置
-    if(direction == QPoint(1, 0)) { // 向右
-        painter.drawEllipse(eyePos.x() + 4, eyePos.y() - 4, 5, 5);
-        painter.drawEllipse(eyePos.x() + 4, eyePos.y() + 4, 5, 5);
-    } else if(direction == QPoint(-1, 0)) { // 向左
-        painter.drawEllipse(eyePos.x() - 9, eyePos.y() - 4, 5, 5);
-        painter.drawEllipse(eyePos.x() - 9, eyePos.y() + 4, 5, 5);
-    } else if(direction == QPoint(0, 1)) { // 向下
-        painter.drawEllipse(eyePos.x() - 4, eyePos.y() + 4, 5, 5);
-        painter.drawEllipse(eyePos.x() + 4, eyePos.y() + 4, 5, 5);
-    } else { // 向上
-        painter.drawEllipse(eyePos.x() - 4, eyePos.y() - 9, 5, 5);
-        painter.drawEllipse(eyePos.x() + 4, eyePos.y() - 9, 5, 5);
+    // 根据方向旋转头部
+    if (direction == QPoint(1, 0)) { // 向右
+        // 不需要旋转
+    } else if (direction == QPoint(-1, 0)) { // 向左
+        painter.rotate(180);
+    } else if (direction == QPoint(0, 1)) { // 向下
+        painter.rotate(90);
+    } else if (direction == QPoint(0, -1)) { // 向上
+        painter.rotate(-90);
     }
     
-    // 绘制瞳孔
-    painter.setBrush(Qt::black);
-    if(direction == QPoint(1, 0)) { // 向右
-        painter.drawEllipse(eyePos.x() + 5, eyePos.y() - 3, 2, 2);
-        painter.drawEllipse(eyePos.x() + 5, eyePos.y() + 5, 2, 2);
-    } else if(direction == QPoint(-1, 0)) { // 向左
-        painter.drawEllipse(eyePos.x() - 7, eyePos.y() - 3, 2, 2);
-        painter.drawEllipse(eyePos.x() - 7, eyePos.y() + 5, 2, 2);
-    } else if(direction == QPoint(0, 1)) { // 向下
-        painter.drawEllipse(eyePos.x() - 3, eyePos.y() + 5, 2, 2);
-        painter.drawEllipse(eyePos.x() + 5, eyePos.y() + 5, 2, 2);
-    } else { // 向上
-        painter.drawEllipse(eyePos.x() - 3, eyePos.y() - 7, 2, 2);
-        painter.drawEllipse(eyePos.x() + 5, eyePos.y() - 7, 2, 2);
+    // 根据选择的形状绘制头部
+    switch (selectedHeadShape) {
+        case SquareHead:
+            drawSquareHead(painter);
+            break;
+        case TriangleHead:
+            drawTriangleHead(painter);
+            break;
+        case CircleHead:
+            drawCircleHead(painter);
+            break;
+        case HexagonHead:
+            drawHexagonHead(painter);
+            break;
     }
     
     painter.restore();
 }
-void GameRenderer::drawSnakeSegment(QPainter& painter, 
-                                  const QRect& rect, 
-                                  int segmentIndex, 
-                                  int totalSegments) 
+
+void GameRenderer::drawSquareHead(QPainter& painter) {
+    const int size = 12;
+    QRect rect(-size, -size, size*2, size*2);
+    
+    // 头部颜色渐变
+    QLinearGradient grad(rect.topLeft(), rect.bottomRight());
+    grad.setColorAt(0, snakeHeadColor.lighter(120));
+    grad.setColorAt(1, snakeHeadColor.darker(120));
+    
+    painter.setPen(QPen(snakeHeadColor.darker(150), 1));
+    painter.setBrush(grad);
+    painter.drawRoundedRect(rect, 4, 4);
+    
+    drawEyes(painter, QPoint(0, 0));
+}
+
+void GameRenderer::drawTriangleHead(QPainter& painter) {
+    const int size = 12;
+    QPolygon triangle;
+    triangle << QPoint(-size, size)
+             << QPoint(size, 0)
+             << QPoint(-size, -size);
+    
+    // 头部颜色渐变
+    QLinearGradient grad(triangle.boundingRect().topLeft(), 
+                         triangle.boundingRect().bottomRight());
+    grad.setColorAt(0, snakeHeadColor.lighter(120));
+    grad.setColorAt(1, snakeHeadColor.darker(120));
+    
+    painter.setPen(QPen(snakeHeadColor.darker(150), 1));
+    painter.setBrush(grad);
+    painter.drawPolygon(triangle);
+    
+    drawEyes(painter, QPoint(size/2,0 ));
+}
+
+void GameRenderer::drawCircleHead(QPainter& painter) {
+    const int size = 12;
+    
+    // 头部颜色渐变
+    QRadialGradient grad(0, 0, size);
+    grad.setColorAt(0, snakeHeadColor.lighter(120));
+    grad.setColorAt(1, snakeHeadColor.darker(120));
+    
+    painter.setPen(QPen(snakeHeadColor.darker(150), 1));
+    painter.setBrush(grad);
+    painter.drawEllipse(-size, -size, size*2, size*2);
+    
+    drawEyes(painter, QPoint(0, 0));
+}
+
+void GameRenderer::drawHexagonHead(QPainter& painter) {
+    const int size = 12;
+    QPolygon hexagon;
+    hexagon << QPoint(-size, 0)
+            << QPoint(-size/2, -size*0.866)
+            << QPoint(size/2, -size*0.866)
+            << QPoint(size, 0)
+            << QPoint(size/2, size*0.866)
+            << QPoint(-size/2, size*0.866);
+    
+    // 头部颜色渐变
+    QLinearGradient grad(hexagon.boundingRect().topLeft(), 
+                         hexagon.boundingRect().bottomRight());
+    grad.setColorAt(0, snakeHeadColor.lighter(120));
+    grad.setColorAt(1, snakeHeadColor.darker(120));
+    
+    painter.setPen(QPen(snakeHeadColor.darker(150), 1));
+    painter.setBrush(grad);
+    painter.drawPolygon(hexagon);
+    
+    drawEyes(painter, QPoint(0, 0));
+}
+
+void GameRenderer::drawEyes(QPainter& painter, const QPoint& offset) {
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::white);
+    
+    // 绘制眼睛
+    painter.drawEllipse(offset + QPoint(4, -4), 3, 3);
+    painter.drawEllipse(offset + QPoint(4, 4), 3, 3);
+    
+    // 绘制瞳孔
+    painter.setBrush(Qt::black);
+    painter.drawEllipse(offset + QPoint(4, -4), 1, 1);
+    painter.drawEllipse(offset + QPoint(4, 4), 1, 1);
+}
+
+void GameRenderer::drawSnakeSegment(QPainter& painter,
+                                  const QRect& rect,
+                                  int segmentIndex,
+                                  int totalSegments)
 {
+    Q_UNUSED(totalSegments); // 显式标记未使用的参数
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing);
     
-    // 基础颜色（交替深浅）
-    QColor baseColor = snakeBodyColor;
-    if (segmentIndex % 2 == 0) {
-        baseColor = baseColor.lighter(110);
+    QColor baseColor;
+    
+    // 彩虹色处理
+    if (selectedBodyColor == RainbowBody) {
+        // 根据位置计算彩虹色
+        float hue = (segmentIndex % 10) * 36.0f; // 每段不同颜色
+        baseColor = QColor::fromHsv(hue, 200, 200);
+    } else {
+        // 基础颜色（交替深浅）
+        baseColor = snakeBodyColor;
+        if (segmentIndex % 2 == 0) {
+            baseColor = baseColor.lighter(110);
+        }
     }
     
     // 创建渐变效果
@@ -598,8 +679,8 @@ void GameRenderer::updateSnakeColors() {
             snakeBodyColor = QColor(150, 150, 0);
             break;
         case RainbowBody:
-            snakeHeadColor = QColor(200, 0, 0);
-            snakeBodyColor = QColor(150, 0, 0);
+            snakeHeadColor = QColor(200, 0, 0); // 红色头部
+            snakeBodyColor = QColor(150, 0, 0); // 基础颜色，但会被彩虹色覆盖
             break;
     }
 }

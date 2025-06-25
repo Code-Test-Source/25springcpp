@@ -54,6 +54,11 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     
 private:
+    void drawSquareHead(QPainter& painter);
+    void drawTriangleHead(QPainter& painter);
+    void drawCircleHead(QPainter& painter);
+    void drawHexagonHead(QPainter& painter);
+    void drawEyes(QPainter& painter, const QPoint& offset);
     SnakeGame* game; 
  // 添加成员变量
     BodyColorScheme bodyColorScheme = ClassicBlue;
